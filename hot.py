@@ -2,6 +2,7 @@ import json, urllib.request, urllib.parse, ssl, re, os, sys
 from datetime import datetime
 
 W = os.environ.get('DINGTALK_WEBHOOK', '')
+SECRET = os.environ.get('DINGTALK_SECRET', '')
 UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
 ctx = ssl.create_default_context()
 ctx.check_hostname = False
@@ -126,9 +127,19 @@ def main():
         print('NO WEBHOOK')
         sys.exit(0)
 
+        url = W
+    if SECRET:
+        import time, hmac, hashlib, base64
+        ts = str(round(time.time() * 1000))
+        sign_str = ts + '
+' + SECRET
+        hmac_code = hmac.new(SECRET.encode('utf-8'), sign_str.encode('utf-8'), digestmod=hashlib.sha256).digest()
+        sign = urllib.parse.quote_plus(base64.b64encode(hmac_code))
+        url = W + '&timestamp=' + ts + '&sign=' + sign
     data = {'msgtype': 'markdown', 'markdown': {'title': title, 'text': content}}
     payload = json.dumps(data).encode('utf-8')
-    req = urllib.request.Request(W, data=payload, headers={'Content-Type': 'application/json'})
+    req = urllib.request.Request(url, data=payload, headers={'Content-Type': 'application/json'})
+
     with urllib.request.urlopen(req, timeout=15, context=ctx) as r:
         res = json.loads(r.read().decode('utf-8'))
         if res.get('errcode') == 0:
