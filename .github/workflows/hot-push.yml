@@ -17,7 +17,7 @@ jobs:
           DINGTALK_WEBHOOK: ${{ secrets.DINGTALK_WEBHOOK }}
           DINGTALK_SECRET: ${{ secrets.DINGTALK_SECRET }}
         run: |
-          python3 -c "import time;from datetime import datetime;target_m=30;now=datetime.utcnow();wait=(target_m-now.minute)*60-now.second;if wait>0 and wait<1800:time.sleep(wait)"
+          python3 -c "import time;from datetime import datetime;m=30;n=datetime.utcnow();w=(m-n.minute)*60-n.second;time.sleep(w) if 0<w<1800 else None"
           python3 << 'PYEOF'
           import json, urllib.request, urllib.parse, ssl, re, os, sys, time, hmac, hashlib, base64
           from datetime import datetime
