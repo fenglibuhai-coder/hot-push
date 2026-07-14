@@ -1,8 +1,9 @@
 name: hot
+run-name: 全网热点速报
 on:
   schedule:
-    - cron: '30 2 * * *'
-    - cron: '30 8 * * *'
+    - cron: '0 2 * * *'
+    - cron: '0 8 * * *'
   workflow_dispatch:
 jobs:
   run:
@@ -16,6 +17,7 @@ jobs:
           DINGTALK_WEBHOOK: ${{ secrets.DINGTALK_WEBHOOK }}
           DINGTALK_SECRET: ${{ secrets.DINGTALK_SECRET }}
         run: |
+          python3 -c "import time;from datetime import datetime;target_m=30;now=datetime.utcnow();wait=(target_m-now.minute)*60-now.second;if wait>0 and wait<1800:time.sleep(wait)"
           python3 << 'PYEOF'
           import json, urllib.request, urllib.parse, ssl, re, os, sys, time, hmac, hashlib, base64
           from datetime import datetime
@@ -99,10 +101,9 @@ jobs:
               weibo = fetch_weibo()
               zhihu = fetch('zhihu', 'mproPpoq6O')
               douyin = fetch('douyin', 'DpQvNABoNE')
-              xhs = fetch('xhs', 'L4MdA5ldxD')
               kr = fetch('36kr', 'KqndgapoLl')
               ssp = fetch('sspai', 'Y2KeDGQdNP')[:5]
-              src = [('weibo', weibo), ('zhihu', zhihu), ('douyin', douyin), ('xhs', xhs), ('36kr', kr), ('sspai', ssp)]
+              src = [('weibo', weibo), ('zhihu', zhihu), ('douyin', douyin), ('36kr', kr), ('sspai', ssp)]
               total = sum(len(s[1]) for s in src)
               sep = NL + '---' + NL + NL
               sections = sep.join(fmt(n, items) for n, items in src)
